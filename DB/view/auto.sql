@@ -1,0 +1,1 @@
+ALTER TABLE sys_role AUTO_INCREMENT = 1;
