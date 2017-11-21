@@ -14,7 +14,7 @@
                 <div class="portlet light">
                     <div class="portlet-title">
                         <div class="caption">
-                            Informasi
+                            Informasi Kendaraan
                         </div>
                         
                     </div>
@@ -93,7 +93,7 @@
             ],
             "pageLength": 10, // default record count per page
             "ajax": {
-                "url": "<?= base_url() ?>T_perawatan/admin_ajax_list", // ajax source,
+                "url": "<?= base_url() ?>T_perawatan/admin_ajax_list/<?= $this->uri->segment(3) ?>", // ajax source,
             },
             "aaSorting": [],
             "columnDefs": [{
@@ -110,8 +110,16 @@
             },
             "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
                 // <set you align column here>
+				
+				var status = aData[6];
+
+				if( status == 'Valid' ){
+					$('td:eq(6)', nRow).addClass('bg-success');
+				}else{
+					$('td:eq(6)', nRow).addClass('bg-danger');
+				}
                 $('td:eq(0)', nRow).attr("align", "right");
-                $('td:eq(2)', nRow).attr("align", "center");
+                $('td:eq(1),td:eq(5),td:eq(6),td:eq(7)', nRow).attr("align", "center");
             },
         }
     });
@@ -124,8 +132,8 @@
         var data = table.row($(this).parents('tr')).data();
         var id = data[0];
 
-        var url = "<?= base_url() ?>t_perawatan/<?= $this->uri->segment(3) ?>/" + id + '?x=<?= $x ?>';
-		location.href(url);
+        var url = "<?= base_url() ?>t_perawatan/form_perawatan/<?= $this->uri->segment(3) ?>/" + id + '?x=<?= $x ?>';
+		window.open(url);
     });
 
     $('#datatable tbody').on('click', '.delete', function (e) {

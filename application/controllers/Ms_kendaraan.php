@@ -109,7 +109,7 @@ class Ms_kendaraan extends MY_Controller {
             $masa_berlaku_stnk = $this->input->post('masa_berlaku_stnk');
             $catatan = $this->input->post('catatan');
             $id_foto_kendaraan = $this->input->post('id_foto_kendaraan');
-            
+            $gambar = $this->input->post('gambar');
             $userinput = $this->auth_user_id;
 
             // set POST data in Array
@@ -124,16 +124,17 @@ class Ms_kendaraan extends MY_Controller {
                 'no_rangka' => $no_rangka,
                 'no_stnk' => $no_stnk,
                 'masa_berlaku_stnk' => date_sql($masa_berlaku_stnk),
-                'catatan' => $catatan
+                'catatan' => $catatan,
+                'id_foto_kendaraan' => $id_foto_kendaraan
             );
 
             if (!empty($id)) {
                 $data['userupdate'] = $userinput;
                 $data['dateupdate'] = date('Y-m-d');
-                $result = $this->Ms_kendaraan_m->update_by_id($data, $id);
+                $result = $this->Ms_kendaraan_m->update_by_id($data, $id, $gambar);
             } else {
                 $data['userinput'] = $userinput;
-                $result = $this->Ms_kendaraan_m->insert($data);
+                $result = $this->Ms_kendaraan_m->insert($data, $gambar);
             }
 
             if ($result) {
@@ -172,7 +173,39 @@ class Ms_kendaraan extends MY_Controller {
 
         echo json_encode($r);
     }
+    
+    public function hapusf_json() {
+        $this->load->model('Sys_attach_dtl_m');
+        // only allow ajax request
+        if (!isset($_SERVER['HTTP_X_REQUESTED_WITH']) &&
+                empty($_SERVER['HTTP_X_REQUESTED_WITH']) &&
+                strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) != 'xmlhttprequest'
+        )
+            show_404();
 
+        if (!$this->verify_role('admin')) {
+            redirect("login");
+        }
+        
+        $id = $this->input->get('id');
+        $gambar = $this->input->get('gambar');
+        
+        $result = $this->Sys_attach_dtl_m->delete_by_id($id);
+        
+        $file_path = UPLOAD_PATH . 'kendaraan/' . $gambar;
+        
+        if(is_file($file_path))
+            unlink ($file_path);
+            
+        if ($result) {
+            $r = array('status' => '1', 'message' => 'Data terhapus');
+        } else {
+            $r = array('status' => '0', 'message' => 'Data gagal terhapus');
+        }
+
+        echo json_encode($r);
+    }
+    
     public function admin_ajax_list() {
         // only allow ajax request
         if (!isset($_SERVER['HTTP_X_REQUESTED_WITH']) &&

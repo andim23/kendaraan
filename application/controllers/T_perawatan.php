@@ -66,6 +66,8 @@ class T_perawatan extends MY_Controller {
     
     public function form_perawatan($id_kendaraan =null, $id_perawatan=null) {
         $this->load->model('Ms_jenis_perawatan_m');
+        $this->load->model('T_jenis_perawatan_dtl_m');
+        
         $x = $this->input->get('x');
         $dx = $this->Sys_sitemap->get_data_by_id($x);
 
@@ -74,7 +76,15 @@ class T_perawatan extends MY_Controller {
             $dx[0]->displayname => base_url() . 'page/get_left_menu?x=' . $x
         );
         
-        $data['djenisp'] = $this->Ms_jenis_perawatan_m->get_data(null, 'id_jenis_perawatan');
+        $detail = $this->T_perawatan_m->get_data_by_id($id_perawatan);
+        foreach( $detail as $row ){
+            $id_jenis_perawatan_hdr = $row->id_jenis_perawatan_hdr;
+            $row->jenis_perawatan = $this->T_jenis_perawatan_dtl_m->get_data(array('id_jenis_perawatan_hdr' => $id_jenis_perawatan_hdr), null);
+        }
+
+        $data['detail'] = $detail;        
+        $data['djenisp'] = $this->Ms_jenis_perawatan_m->get_data(array('id_group'=>'1'), 'id_jenis_perawatan');
+        $data['djenisp_lain'] = $this->Ms_jenis_perawatan_m->get_data(array('id_group'=>'2'), 'id_jenis_perawatan');
         $data['dkendaraan'] = $this->Ms_kendaraan_m->get_data_by_id($id_kendaraan);
         $data['result'] = $this->T_perawatan_m->get_data_by_id($id_perawatan);
         $data['breadcrumb'] = $breadcrumb;
@@ -102,13 +112,13 @@ class T_perawatan extends MY_Controller {
         // set validation rules
         $config = array(
             array(
-                'field' => 'id_jenis_perawatan_hdr',
-                'label' => 'Jenis Perawatan',
-                'rules' => 'required|is_natural_no_zero|min_length[1]|max_length[10]'
-            ),
-            array(
                 'field' => 'tanggal',
                 'label' => 'Tanggal Perawatan',
+                'rules' => 'required'
+            ),
+            array(
+                'field' => 'masa_berlaku',
+                'label' => 'Masa Berlaku',
                 'rules' => 'required'
             ),
             array(
@@ -129,6 +139,7 @@ class T_perawatan extends MY_Controller {
         if ($this->form_validation->run() !== false) {
             // Post data
             $id_jenis_perawatan_hdr = $this->input->post('id_jenis_perawatan_hdr');
+            
             $id_kendaraan = $this->input->post('id_kendaraan');
             $biro = $this->input->post('biro');
             $tanggal = $this->input->post('tanggal');
@@ -137,25 +148,42 @@ class T_perawatan extends MY_Controller {
             $pengemudi = $this->input->post('pengemudi');
             $pemakai = $this->input->post('pemakai');
             $masa_berlaku = $this->input->post('masa_berlaku');
-
+            
+            // perawatan
+            $id_jenis_perawatan = $this->input->post('id_jenis_perawatan');
+            $jumlah = $this->input->post('jumlah');
+            $harga = $this->input->post('harga');
+            $catatan = $this->input->post('catatan');
+            $userinput = $this->auth_user_id;
+            
+            
             // set POST data in Array
             $data = array(
+                'id_jenis_perawatan_hdr' => $id_jenis_perawatan_hdr,
+                'id_kendaraan' => $id_kendaraan,
                 'biro' => $biro,
-                'tanggal' => $tanggal,
+                'tanggal' => date_sql($tanggal),
                 'kilometer' => $kilometer,
                 'lain_lain' => $lain_lain,
                 'pengemudi' => $pengemudi,
                 'pemakai' => $pemakai,
-                'masa_berlaku' => $masa_berlaku
+                'masa_berlaku' => date_sql($masa_berlaku)
             );
 
+            $datap = array(
+                'id_jenis_perawatan' => $id_jenis_perawatan,
+                'jumlah' => $jumlah,
+                'harga' => $harga,
+                'catatan' => $catatan
+            );
+            
             if (!empty($id)) {
                 $data['userupdate'] = $userinput;
                 $data['dateupdate'] = date('Y-m-d');
-                $result = $this->T_perawatan_m->update_by_id($data, $id);
+                $result = $this->T_perawatan_m->update_by_id($data, $id, $datap);
             } else {
                 $data['userinput'] = $userinput;
-                $result = $this->T_perawatan_m->insert($data);
+                $result = $this->T_perawatan_m->insert($data, $datap);
             }
 
             if ($result) {
@@ -195,7 +223,7 @@ class T_perawatan extends MY_Controller {
         echo json_encode($r);
     }
 
-    public function admin_ajax_list() {
+    public function admin_ajax_list($id_kendaraan=null) {
         // only allow ajax request
         if (!isset($_SERVER['HTTP_X_REQUESTED_WITH']) &&
                 empty($_SERVER['HTTP_X_REQUESTED_WITH']) &&
@@ -210,12 +238,17 @@ class T_perawatan extends MY_Controller {
         $this->load->model('T_perawatan_m');
 
         $column_order = array(
-            'id_perawatan', 'tanggal_char', 'pemakai', 'masa_berlaku_char', 'id_perawatan'
+            'id_perawatan', 'tanggal_char', 'kilometer', 'biro', 'pemakai', 'masa_berlaku_char', 'masa_berlaku_status', 'id_perawatan'
         );
+        
+        $where = array(
+            'id_kendaraan'=>$id_kendaraan
+        );
+        
         $column_search = $column_order;
         $order = array('dateinput' => 'desc'); // default order 
 
-        $list = $this->T_perawatan_m->get_datatables($column_order, $order, $column_search);
+        $list = $this->T_perawatan_m->get_datatables($column_order, $order, $column_search, $where);
         $data = array();
         $no = $_POST['start'];
         foreach ($list as $r) {
@@ -230,8 +263,8 @@ class T_perawatan extends MY_Controller {
 
         $output = array(
             "draw" => $_POST['draw'],
-            "recordsTotal" => $this->T_perawatan_m->count_all(),
-            "recordsFiltered" => $this->T_perawatan_m->count_filtered($column_order, $order, $column_search),
+            "recordsTotal" => $this->T_perawatan_m->count_all($where),
+            "recordsFiltered" => $this->T_perawatan_m->count_filtered($column_order, $order, $column_search, $where),
             "data" => $data,
         );
         echo json_encode($output);

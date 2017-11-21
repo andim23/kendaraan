@@ -40,11 +40,51 @@ class T_perawatan_m extends My_model {
         return $query->result();
     }
 
-    public function insert($data = NULL) {
-        return $this->db->insert($this->table, $data);
+    public function insert($data = NULL, $datap = null) {
+        $this->db->trans_begin();
+        
+        if( !empty($datap['id_jenis_perawatan']) ){
+            
+            $dh = array(
+                'userinput' => $data['userinput']
+            );
+            $this->db->insert('t_jenis_perawatan_hdr', $dh);
+            $data['id_jenis_perawatan_hdr'] = $this->db->insert_id();
+                    
+            $c = count($datap['id_jenis_perawatan']);
+            
+            $ar_id_jenis_perawatan = $datap['id_jenis_perawatan'];
+            $ar_catatan = $datap['catatan'];
+            $ar_jumlah = $datap['jumlah'];
+            $ar_harga = $datap['harga'];
+            
+            for($i=0; $i<$c; $i++){
+                $dd = array(
+                    'id_jenis_perawatan_hdr' => $data['id_jenis_perawatan_hdr'],
+                    'status' => 'Y',
+                    'catatan' => $ar_catatan[$i],
+                    'jumlah' => $ar_jumlah[$i],
+                    'harga' => $ar_harga[$i],
+                    'id_jenis_perawatan' => $ar_id_jenis_perawatan[$i],
+                    'userinput' => $data['userinput']
+                );
+                $this->db->insert('t_jenis_perawatan_dtl', $dd);
+            }
+        }
+        
+        $this->db->insert($this->table, $data);
+        
+        if ($this->db->trans_status() === FALSE)
+        {
+            return $this->db->trans_rollback();
+        }
+        else
+        {
+            return $this->db->trans_commit();
+        }
     }
 
-    public function update_by_id($data = NULL, $id = NULL) {
+    public function update_by_id($data = NULL, $id = NULL, $datap=null) {
         return $this->db->update($this->table, $data, array($this->primary_key => $id));
     }
 

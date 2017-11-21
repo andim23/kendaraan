@@ -12,7 +12,8 @@ select		x.id_perawatan, x.id_kendaraan, x.id_jenis_perawatan_hdr,
 				concat(right(x.masa_berlaku,2), '-', 
 				mid(x.masa_berlaku,6,2), '-' ,
 				left(x.masa_berlaku,4)) as masa_berlaku_char,
-				null as masa_berlaku_status
+				if( x.masa_berlaku < date(now()), 'Exipred', 'Valid' ) as masa_berlaku_status
 from			t_perawatan x
 left join	ms_kendaraan k on k.id_kendaraan = x.id_kendaraan
 left join	ms_jenis j on k.id_jenis = j.id_jenis
+;

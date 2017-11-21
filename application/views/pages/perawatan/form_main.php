@@ -36,11 +36,21 @@
 	
 
     $("#save-btn").click(function (e) {
-        alert('Under Cons')
-		return false;
 		$("#form").submit();
     });
-
+	
+	$(".checks").click(function(e) {
+        var checked = $(this).attr("checked");
+		var val = $(this).val();
+		
+		if( checked == "checked" ){
+			$(".checks-" + val).removeAttr("disabled");
+		}else{
+			
+			$(".checks-" + val).attr("disabled", "disabled").val('').text('');
+		}
+    });
+	
     $("#form").submit(function (e) {
         // prevent default action
         e.preventDefault();
@@ -58,12 +68,13 @@
                 var status = data.status;
                 var message = data.message;
                 if (status == '1') {
-                    $('#modal_form').modal('hide')
-                    grid.getDataTable().ajax.reload();
+                    var url = "<?= base_url() ?>t_perawatan/daftar_perawatan/<?= $this->uri->segment(3) ?>?x=<?= $x ?>";
+					location.href = url;
                 } else {
+					
                     $.each(data.message, function (key, value) {
+						
                         var element = $('#form #' + key);
-                        console.log(element)
                         element.closest('div.form-group')
                                 .removeClass('has-error')
                                 .addClass(value.length > 0 ? 'has-error' : 'has-success')
@@ -72,6 +83,8 @@
 
                         element.after(value);
                     });
+					
+					$(".text-danger").first().prev().focus();
                     $("#save-btn").text('Simpan').removeAttr("disabled");
                 }
             },

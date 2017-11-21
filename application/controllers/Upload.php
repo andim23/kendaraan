@@ -107,10 +107,39 @@ class Upload extends MY_Controller {
         echo json_encode($r);
     }
 
-        public function delete_fileph_json(){
+    public function do_upload_k(){
+        // set user priviledge
+        if( !$this->verify_role('admin') )
+            redirect("login");
+        
+        $config['upload_path'] = UPLOAD_PATH . 'kendaraan/';
+        $config['allowed_types'] = 'jpg|jpeg|png';
+        $config['max_size'] = '100000000';
+        $this->load->library('upload', $config);
+        
+        if ( ! $this->upload->do_upload("file") ){
+            $r = array('info'=>'0', 'message' => $this->upload->display_errors());
+        }else{
+            $data = array('upload_data' => $this->upload->data());
+            $file_name = $data['upload_data']['file_name'];
+            $file_type = $data['upload_data']['file_type'];
+            $file_size = $data['upload_data']['file_size'];
+            $r = array(
+                'info'=>'1', 
+                'message'=>'Upload Lokal berhail', 
+                'file_name'=>$file_name,
+                'file_type'=>$file_type,
+                'file_size'=>$file_size
+            );
+        }
+        
+        echo json_encode($r);
+    }
+    
+    public function delete_filek_json(){
         $file_name = $this->input->get('file_name');
         
-        $file_path = UPLOAD_PATH . 'produk_hukum/' . $file_name;
+        $file_path = UPLOAD_PATH . 'kendaraan/' . $file_name;
         if(file_exists($file_path) ){
             unlink ($file_path);
         }

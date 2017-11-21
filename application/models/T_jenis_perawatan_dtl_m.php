@@ -7,16 +7,16 @@
  */
 
 /**
- * Description of Ms_kendaraan_m
+ * Description of T_jenis_perawatan_dtl_m
  *
  * @author Selamet Subu - Dell 5459
  */
-class Ms_kendaraan_m extends My_model {
+class T_jenis_perawatan_dtl_m extends My_model {
 
     //put your code here
-    var $table = "ms_kendaraan";
-    var $view = "ms_kendaraan_view";
-    var $primary_key = "id_kendaraan";
+    var $table = "t_jenis_perawatan_dtl";
+    var $view = "t_jenis_perawatan_dtl";
+    var $primary_key = "recid";
 
     function get_data($where = NULL, $order_by = NULL) {
         if (!empty($where))
@@ -40,67 +40,12 @@ class Ms_kendaraan_m extends My_model {
         return $query->result();
     }
 
-    public function insert($data = NULL, $gambar=null) {
-        $this->db->trans_begin();
-        
-        if(!empty($gambar)){
-            // insert foto sebelum
-            $this->db->insert('sys_attach', array('userinput' => $data['userinput']));
-            $id_foto_kendaraan = $this->db->insert_id();
-            $data['id_foto_kendaraan'] = $id_foto_kendaraan;
-
-            $dfs = array(
-                'attachid' => $id_foto_kendaraan,
-                'title' => 'Foto Kendaraan',
-                'description' => 'Foto Kendaraan',
-                'filename' => $gambar
-            );
-            $this->db->insert('sys_attach_dtl', $dfs);
-        }
-        
-        $this->db->insert($this->table, $data);
-        
-        if ($this->db->trans_status() === FALSE)
-        {
-            return $this->db->trans_rollback();
-        }
-        else
-        {
-            return $this->db->trans_commit();
-        }
+    public function insert($data = NULL) {
+        return $this->db->insert($this->table, $data);
     }
 
-    public function update_by_id($data = NULL, $id = NULL, $gambar=null) {
-        $this->db->trans_begin();
-        
-        if(!empty($gambar)){
-            $this->db->delete('sys_attach_dtl', array('attachid' => $data['id_foto_kendaraan']));
-            // insert foto sebelum
-            if( empty($data['id_foto_kendaraan']) ){
-                $this->db->insert('sys_attach', array('userinput' => $data['userupdate']));
-                $id_foto_kendaraan = $this->db->insert_id();
-                $data['id_foto_kendaraan'] = $id_foto_kendaraan;
-            }
-
-            $dfs = array(
-                'attachid' => $data['id_foto_kendaraan'],
-                'title' => 'Foto Kendaraan',
-                'description' => 'Foto Kendaraan',
-                'filename' => $gambar
-            );
-            $this->db->insert('sys_attach_dtl', $dfs);
-        }
-        
-        $this->db->update($this->table, $data, array($this->primary_key => $id));
-        
-        if ($this->db->trans_status() === FALSE)
-        {
-            return $this->db->trans_rollback();
-        }
-        else
-        {
-            return $this->db->trans_commit();
-        }
+    public function update_by_id($data = NULL, $id = NULL) {
+        return $this->db->update($this->table, $data, array($this->primary_key => $id));
     }
 
     public function delete_by_id($id) {

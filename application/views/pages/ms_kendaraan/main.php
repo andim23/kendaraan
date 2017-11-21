@@ -1,3 +1,9 @@
+<style>
+	.dz-preview{
+		display: none;
+	}
+
+</style>
 <div class="page-content-wrapper">
     <div class="page-content">
         <!-- BEGIN PAGE HEADER-->
@@ -107,7 +113,9 @@
         $.clearErrorMark();
         // reset form
         $.clearInput();
-		
+		$("#gambar_progress .progress-bar").css({"width":"0%"});
+		$("#gambar_upload_content").show();
+		$("#gambar_content").empty();
 		$("#form #catatan").data("wysihtml5").editor.setValue('');
     });
 
@@ -151,7 +159,46 @@
 				var catatan = data[0].catatan;
 				var id_foto_kendaraan = data[0].id_foto_kendaraan;
 				var masa_berlaku_stnk_char = data[0].masa_berlaku_stnk_char;
+				var gambar = data[0].gambar;
+				var gambarid = data[0].gambarid;
 				
+				if(gambar != null){
+					$("#gambar_content").empty();
+					var tmp = 	'<a href="<?= base_url() ?>upload/kendaraan/'+gambar+'" target="_blank">'; 	
+						tmp += 	'<img src="<?= base_url() ?>upload/kendaraan/'+gambar+'" width="200">';
+						tmp +=	'</a>';
+						tmp += 	'<center><a href="#" class="delete-gambar-server"><i class="fa fa-trash-o"></i> hapus </a></center>';
+						tmp += 	'<input type="hidden" name="gambar" id="gambar" value="'+gambar+'" />';
+					
+					$("#gambar_upload_content").hide();
+					$("#gambar_content").append(tmp);
+					
+					$(".delete-gambar-server").click(function(e) {
+						e.preventDefault();
+						if(confirm("Anda yakin menghapus data ini")){
+							$.ajax({
+								cache: false,
+								type: "get",
+								url: "<?= base_url() ?>Ms_kendaraan/hapusf_json",
+								data: "id=" + gambarid + "&gambar=" + gambar,
+								success: function (response) {
+									var data = JSON.parse(response);
+									var status = data.status;
+									var message = data.message;
+				
+									if (status == '1') {
+										$("#gambar_upload_content").show();
+									} else {
+										alert(message);
+									}
+								}
+							});
+						}
+					});
+				}else{
+					$("#gambar_content").empty();
+					$("#gambar_upload_content").show();
+				}
 				
 				$("#form #id_jenis").select2('val', id_jenis);
 				$("#form #id_merk").select2('val', id_merk);
@@ -167,7 +214,6 @@
 				$("#form #masa_berlaku_stnk").val(masa_berlaku_stnk_char);
 				$("#form #catatan").data("wysihtml5").editor.setValue(catatan);
 				$("#form #id_foto_kendaraan").val(id_foto_kendaraan);
-				
             }
         });
     });
