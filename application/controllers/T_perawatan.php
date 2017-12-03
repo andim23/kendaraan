@@ -40,22 +40,43 @@ class T_perawatan extends MY_Controller {
         );
 
         $data['breadcrumb'] = $breadcrumb;
-        $data['page'] = $this->main_path . 'kendaraan_main.php';
+        $data['page'] = $this->main_path . 'spk_main.php';
         $data['title'] = $dx[0]->displayname; // Capitalize the first letter
         $data['htitle'] = $dx[0]->displayname;
         $this->load->view($this->tmp_path, $data);
     }
     
-    public function daftar_perawatan($id_kendaraan=null) {
+    public function daftar_perawatan($id_spk=null) {
+        $this->load->model('Ms_jenis_perawatan_m');
+        $this->load->model('T_jenis_perawatan_dtl_m');
+        $this->load->model('Sys_attach_dtl_m');
+        $this->load->model('T_spk_m');
         $x = $this->input->get('x');
         $y = $this->input->get('y');
         $dx = $this->Sys_sitemap->get_data_by_id($x);
-
+        
+        
+        $dspk = $this->T_spk_m->get_data_by_id($id_spk);
+        $id_kendaraan = $dspk[0]->id_kendaraan;
+        
         // set breadcrumb, tidak usah pake Home karena itu sudah default
         $breadcrumb = array(
             $dx[0]->displayname => base_url() . 'page/get_left_menu?x=' . $x
         );
         
+        $detail = $this->T_perawatan_m->get_data(array('id_spk' => $id_spk));
+        foreach( $detail as $row ){
+            $id_jenis_perawatan_hdr = $row->id_jenis_perawatan_hdr;
+            $id_berkas_pendukung = $row->id_berkas_pendukung;
+            $row->jenis_perawatan = $this->T_jenis_perawatan_dtl_m->get_data(array('id_jenis_perawatan_hdr' => $id_jenis_perawatan_hdr), null);
+            $row->berkas = $this->Sys_attach_dtl_m->get_data(array('attachid' => $id_berkas_pendukung), null);
+        }
+
+        $data['detail'] = $detail;
+        
+        $data['djenisp'] = $this->Ms_jenis_perawatan_m->get_data(array('id_group'=>'1'), 'id_jenis_perawatan');
+        $data['djenisp_lain'] = $this->Ms_jenis_perawatan_m->get_data(array('id_group'=>'2'), 'id_jenis_perawatan');
+        $data['dspk'] = $dspk;
         $data['dkendaraan'] = $this->Ms_kendaraan_m->get_data_by_id($id_kendaraan);
         $data['breadcrumb'] = $breadcrumb;
         $data['page'] = $this->main_path . 'main.php';
@@ -64,9 +85,11 @@ class T_perawatan extends MY_Controller {
         $this->load->view($this->tmp_path, $data);
     }
     
-    public function form_perawatan($id_kendaraan =null, $id_perawatan=null) {
+    /*public function form_perawatan($id_spk = null, $id_perawatan=null) {
         $this->load->model('Ms_jenis_perawatan_m');
         $this->load->model('T_jenis_perawatan_dtl_m');
+        $this->load->model('Sys_attach_dtl_m');
+        $this->load->model('T_spk_m');
         
         $x = $this->input->get('x');
         $dx = $this->Sys_sitemap->get_data_by_id($x);
@@ -76,23 +99,28 @@ class T_perawatan extends MY_Controller {
             $dx[0]->displayname => base_url() . 'page/get_left_menu?x=' . $x
         );
         
+        $dspk = $this->T_spk_m->get_data_by_id($id_spk);
+        $id_kendaraan = $dspk[0]->id_kendaraan;
+        
         $detail = $this->T_perawatan_m->get_data_by_id($id_perawatan);
         foreach( $detail as $row ){
             $id_jenis_perawatan_hdr = $row->id_jenis_perawatan_hdr;
+            $id_berkas_pendukung = $row->id_berkas_pendukung;
             $row->jenis_perawatan = $this->T_jenis_perawatan_dtl_m->get_data(array('id_jenis_perawatan_hdr' => $id_jenis_perawatan_hdr), null);
+            $row->berkas = $this->Sys_attach_dtl_m->get_data(array('attachid' => $id_berkas_pendukung), null);
         }
 
-        $data['detail'] = $detail;        
+        $data['detail'] = $detail;
         $data['djenisp'] = $this->Ms_jenis_perawatan_m->get_data(array('id_group'=>'1'), 'id_jenis_perawatan');
         $data['djenisp_lain'] = $this->Ms_jenis_perawatan_m->get_data(array('id_group'=>'2'), 'id_jenis_perawatan');
         $data['dkendaraan'] = $this->Ms_kendaraan_m->get_data_by_id($id_kendaraan);
-        $data['result'] = $this->T_perawatan_m->get_data_by_id($id_perawatan);
+        $data['dspk'] = $dspk;
         $data['breadcrumb'] = $breadcrumb;
         $data['page'] = $this->main_path . 'form_main.php';
         $data['title'] = $dx[0]->displayname; // Capitalize the first letter
         $data['htitle'] = $dx[0]->displayname;
         $this->load->view($this->tmp_path, $data);
-    }
+    }*/
 
     public function simpan_json() {
         // only allow ajax request
@@ -101,11 +129,6 @@ class T_perawatan extends MY_Controller {
                 strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) != 'xmlhttprequest'
         )
             show_404();
-
-        // check user  login
-        if (!$this->verify_role('admin')) {
-            redirect("login");
-        }
         
         $id = $this->input->post('id_perawatan');
         
@@ -140,6 +163,7 @@ class T_perawatan extends MY_Controller {
             // Post data
             $id_jenis_perawatan_hdr = $this->input->post('id_jenis_perawatan_hdr');
             
+            $id_spk = $this->input->post('id_spk');
             $id_kendaraan = $this->input->post('id_kendaraan');
             $biro = $this->input->post('biro');
             $tanggal = $this->input->post('tanggal');
@@ -148,6 +172,7 @@ class T_perawatan extends MY_Controller {
             $pengemudi = $this->input->post('pengemudi');
             $pemakai = $this->input->post('pemakai');
             $masa_berlaku = $this->input->post('masa_berlaku');
+            $berkas_pendukung = $this->input->post('berkas_pendukung');
             
             // perawatan
             $id_jenis_perawatan = $this->input->post('id_jenis_perawatan');
@@ -156,25 +181,27 @@ class T_perawatan extends MY_Controller {
             $catatan = $this->input->post('catatan');
             $userinput = $this->auth_user_id;
             
-            
+
             // set POST data in Array
             $data = array(
                 'id_jenis_perawatan_hdr' => $id_jenis_perawatan_hdr,
                 'id_kendaraan' => $id_kendaraan,
                 'biro' => $biro,
                 'tanggal' => date_sql($tanggal),
-                'kilometer' => $kilometer,
+                'kilometer' => preg_replace("/[^0-9]/", "", $kilometer),
                 'lain_lain' => $lain_lain,
                 'pengemudi' => $pengemudi,
                 'pemakai' => $pemakai,
-                'masa_berlaku' => date_sql($masa_berlaku)
+                'masa_berlaku' => date_sql($masa_berlaku),
+                'id_spk' => $id_spk
             );
 
             $datap = array(
                 'id_jenis_perawatan' => $id_jenis_perawatan,
                 'jumlah' => $jumlah,
                 'harga' => $harga,
-                'catatan' => $catatan
+                'catatan' => $catatan,
+                'berkas_pendukung' => $berkas_pendukung
             );
             
             if (!empty($id)) {
@@ -209,9 +236,7 @@ class T_perawatan extends MY_Controller {
         )
             show_404();
 
-        if (!$this->verify_role('admin')) {
-            redirect("login");
-        }
+        
         $id = $this->input->get('id');
         $result = $this->T_perawatan_m->delete_by_id($id);
         if ($result) {
@@ -222,8 +247,10 @@ class T_perawatan extends MY_Controller {
 
         echo json_encode($r);
     }
+    
+    public function hapus_berkas_json() {
+        $this->load->model('Sys_attach_dtl_m');
 
-    public function admin_ajax_list($id_kendaraan=null) {
         // only allow ajax request
         if (!isset($_SERVER['HTTP_X_REQUESTED_WITH']) &&
                 empty($_SERVER['HTTP_X_REQUESTED_WITH']) &&
@@ -231,9 +258,32 @@ class T_perawatan extends MY_Controller {
         )
             show_404();
 
-        if (!$this->verify_role('admin')) {
-            redirect("login");
+
+        $id = $this->input->get('id');
+        $filename = $this->input->get('filename');
+        
+        $file_path = UPLOAD_PATH . 'berkas_perawatan/' . $filename;
+        
+        $result = $this->Sys_attach_dtl_m->delete_by_id($id);
+        if ($result) {
+            if(file_exists($file_path) ){
+                unlink ($file_path);
+            }
+            $r = array('status' => '1', 'message' => 'Data terhapus');
+        } else {
+            $r = array('status' => '0', 'message' => 'Data gagal terhapus');
         }
+
+        echo json_encode($r);
+    }
+
+    public function admin_ajax_list($id_spk=null) {
+        // only allow ajax request
+        if (!isset($_SERVER['HTTP_X_REQUESTED_WITH']) &&
+                empty($_SERVER['HTTP_X_REQUESTED_WITH']) &&
+                strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) != 'xmlhttprequest'
+        )
+            show_404();
 
         $this->load->model('T_perawatan_m');
 
@@ -242,7 +292,7 @@ class T_perawatan extends MY_Controller {
         );
         
         $where = array(
-            'id_kendaraan'=>$id_kendaraan
+            'id_spk'=>$id_spk
         );
         
         $column_search = $column_order;
@@ -270,7 +320,8 @@ class T_perawatan extends MY_Controller {
         echo json_encode($output);
     }
     
-    public function kendaraan_ajax_list() {
+    public function spk_ajax_list() {
+        $this->load->model('T_spk_m');
         // only allow ajax request
         if (!isset($_SERVER['HTTP_X_REQUESTED_WITH']) &&
                 empty($_SERVER['HTTP_X_REQUESTED_WITH']) &&
@@ -281,6 +332,45 @@ class T_perawatan extends MY_Controller {
         if (!$this->verify_role('admin')) {
             redirect("login");
         }
+
+        $this->load->model('T_spk_m');
+
+        $column_order = array(
+            'id_spk', 'no_spk', 'no_keluhan', 'pengguna', 'pemohon', 'platno', 'nama_kendaraan', 'id_spk'
+        );
+        $column_search = $column_order;
+        $order = array('dateinput' => 'desc'); // default order 
+
+        $list = $this->T_spk_m->get_datatables($column_order, $order, $column_search);
+        $data = array();
+        $no = $_POST['start'];
+        foreach ($list as $r) {
+            $no++;
+            $row = array();
+            for ($i = 0; $i < count($column_search); $i++) {
+                $row[] = $r[$column_search[$i]];
+            }
+
+            $data[] = $row;
+        }
+
+        $output = array(
+            "draw" => $_POST['draw'],
+            "recordsTotal" => $this->T_spk_m->count_all(),
+            "recordsFiltered" => $this->T_spk_m->count_filtered($column_order, $order, $column_search),
+            "data" => $data,
+        );
+        echo json_encode($output);
+    }
+    
+    public function kendaraan_ajax_list() {
+        // only allow ajax request
+        if (!isset($_SERVER['HTTP_X_REQUESTED_WITH']) &&
+                empty($_SERVER['HTTP_X_REQUESTED_WITH']) &&
+                strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) != 'xmlhttprequest'
+        )
+            show_404();
+
 
         $this->load->model('Ms_kendaraan_m');
 
@@ -325,5 +415,25 @@ class T_perawatan extends MY_Controller {
         $data = $this->T_perawatan_m->get_data_by_id($id);
         echo json_encode($data);
     }
+    
+    public function export_pdf($id_kendaraan=null, $id_perawatan=null){
+        $this->load->library('Pdf');
+        
+        $this->load->model('Ms_jenis_perawatan_m');
+        $this->load->model('T_jenis_perawatan_dtl_m');
+        
+        $detail = $this->T_perawatan_m->get_data_by_id($id_perawatan);
+        foreach( $detail as $row ){
+            $id_jenis_perawatan_hdr = $row->id_jenis_perawatan_hdr;
+            $row->jenis_perawatan = $this->T_jenis_perawatan_dtl_m->get_data(array('id_jenis_perawatan_hdr' => $id_jenis_perawatan_hdr), null);
+        }
 
+        $data['detail'] = $detail;
+        $data['dkendaraan'] = $this->Ms_kendaraan_m->get_data_by_id($id_kendaraan);
+        $data['title'] = 'Rekapitulasi Perawatan Kendaraan'; // Capitalize the first letter
+        $data['htitle'] = 'Rekapitulasi Perawatan Kendaraan';
+        $data['page'] = $this->main_path . 'export_pdf.php';
+        $this->load->view($data['page'], $data);
+    }
+    
 }

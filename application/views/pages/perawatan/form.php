@@ -1,37 +1,54 @@
-<?php
-	$r = $dkendaraan[0];
-?>
+<style>
+	.dz-preview{
+		display: none;
+	}
+
+</style>
 <div class="row">
     <div class="col-md-12">
         <form class="form-horizontal" role="form"  method="post" action="<?= base_url() ?>T_perawatan/simpan_json" id="form">
-            <input type="hidden" name="id_perawatan" id="id_perawatan" />
-            <input type="hidden" name="id_kendaraan" id="id_kendaraan" value="<?= $this->uri->segment(3) ?>" />
-            
+            <input type="hidden" name="id_perawatan" id="id_perawatan" value="<?= isset($detail[0]->id_perawatan)?$detail[0]->id_perawatan:""; ?>" />
+            <input type="hidden" name="id_kendaraan" id="id_kendaraan" value="<?= isset($dkendaraan[0]->id_kendaraan)?$dkendaraan[0]->id_kendaraan:""; ?>" />
+            <input type="hidden" name="id_spk" id="id_spk" value="<?= $this->uri->segment(3) ?>" />
+			
+            <?php foreach($dspk as $rd){ ?>
             <div class="form-group">
-                <label for="kategori" class="col-md-2 control-label">Jenis Kendaraan</label>
+            	<div class="col-md-12"><h3>Informasi SPK</h3></div>
+            </div>
+            <div class="form-group">
+                <label for="kategori" class="col-md-2 control-label"><strong>Tanggal</strong></label>
                 <div class="col-md-10">
-                    <input type="text" class="form-control" value="<?= $r->jenis ?>" readonly="readonly">
+                	<label class="control-label"><?= TglOnlyIndo($rd->tanggal) ?></label>
                 </div>
             </div>
-            
             <div class="form-group">
-                <label for="kategori" class="col-md-2 control-label">Nama Kendaraan</label>
+                <label for="kategori" class="col-md-2 control-label"><strong>No SPK</strong></label>
                 <div class="col-md-10">
-                    <input type="text" class="form-control" value="<?= $r->nama_kendaraan ?>" readonly="readonly">
+                	<label class="control-label"><?= $rd->no_spk ?></label>
                 </div>
             </div>
-            
             <div class="form-group">
-                <label for="kategori" class="col-md-2 control-label">Plat No</label>
+                <label for="kategori" class="col-md-2 control-label"><strong>Perawatan</strong></label>
                 <div class="col-md-10">
-                    <input type="text" class="form-control" value="<?= $r->platno ?>" readonly="readonly">
+                	<?= $rd->perawatan ?>
                 </div>
             </div>
+            <div class="form-group">
+                <label for="kategori" class="col-md-2 control-label"><strong>Pengguna</strong></label>
+                <div class="col-md-10">
+                	<label class="control-label"><?= $rd->pengguna ?></label>
+                </div>
+            </div>
+            <?php } ?>
             
+            
+            <div class="form-group">
+            	<div class="col-md-12"><h3>Informasi Perawatan</h3></div>
+            </div>
             <div class="form-group">
                 <label for="kategori" class="col-md-2 control-label">Biro <span class="required" aria-required="true">*</span></label>
                 <div class="col-md-10">
-                    <input name="biro" type="text" class="form-control" id="biro" value="<?= isset($detail[0]->biro)?$detail[0]->biro:""; ?>">
+                    <input name="biro" type="text" class="form-control" id="biro" value="<?= isset($dspk[0]->pengguna)?$dspk[0]->pengguna:""; ?>">
                 </div>
             </div>
             
@@ -107,10 +124,10 @@
                     <label><input type="checkbox" class="checks" name="id_jenis_perawatan[]" id="id_jenis_perawatan-<?= $rj->id_jenis_perawatan ?>" value="<?= $rj->id_jenis_perawatan ?>" /> </label> 
                 </div>
                 <div class="col-md-1">
-                	<input type="text" name="jumlah[]" id="jumlah-<?= $rj->id_jenis_perawatan ?>" class="form-control checks-<?= $rj->id_jenis_perawatan ?>" disabled="disabled" />
+                	<input type="text" name="jumlah[]" id="jumlah-<?= $rj->id_jenis_perawatan ?>" class="form-control jumlah checks-<?= $rj->id_jenis_perawatan ?>" disabled="disabled" />
                 </div>
                 <div class="col-md-2">
-                	<input type="text" name="harga[]" id="harga-<?= $rj->id_jenis_perawatan ?>" class="form-control checks-<?= $rj->id_jenis_perawatan ?>" disabled="disabled" />
+                	<input type="text" name="harga[]" id="harga-<?= $rj->id_jenis_perawatan ?>" class="form-control harga checks-<?= $rj->id_jenis_perawatan ?>" disabled="disabled" />
                 </div>
                 <div class="col-md-6">
                 	<textarea class="form-control checks-<?= $rj->id_jenis_perawatan ?>" id="catatan-<?= $rj->id_jenis_perawatan ?>" name="catatan[]" disabled="disabled"></textarea>
@@ -132,10 +149,10 @@
                     <label><input type="checkbox" class="checks" name="id_jenis_perawatan[]" id="id_jenis_perawatan-<?= $rl->id_jenis_perawatan ?>" value="<?= $rl->id_jenis_perawatan ?>" /> </label> 
                 </div>
                 <div class="col-md-1">
-                	<input type="text" name="jumlah[]" id="jumlah-<?= $rl->id_jenis_perawatan ?>" class="form-control checks-<?= $rl->id_jenis_perawatan ?>" disabled="disabled" />
+                	<input type="text" name="jumlah[]" id="jumlah-<?= $rl->id_jenis_perawatan ?>" class="form-control jumlah checks-<?= $rl->id_jenis_perawatan ?>" disabled="disabled" />
                 </div>
                 <div class="col-md-2">
-                	<input type="text" name="harga[]" id="harga-<?= $rl->id_jenis_perawatan ?>" class="form-control checks-<?= $rl->id_jenis_perawatan ?>" disabled="disabled" />
+                	<input type="text" name="harga[]" id="harga-<?= $rl->id_jenis_perawatan ?>" class="form-control harga checks-<?= $rl->id_jenis_perawatan ?>" disabled="disabled" />
                 </div>
                 <div class="col-md-6">
                 	<textarea class="form-control checks-<?= $rl->id_jenis_perawatan ?>" id="catatan-<?= $rl->id_jenis_perawatan ?>" name="catatan[]" disabled="disabled"></textarea>
@@ -146,11 +163,52 @@
             </div>
             <?php } ?>
             
+            <div class="form-group">
+           		<h3>Berkas Pendukung</h3>
+            </div>
+            
+            <div class="form-group">
+                <label for="kategori" class="col-md-2 control-label">Berkas</label>
+                <div class="col-md-10">
+                	<div class="berkas_upload_content" id="berkas_upload_content">
+                        <button id="btn_berkas" name="btn_berkas" type="button" class="btn green btn-block">Unggah Berkas Pendukung</button>
+                        <div class="progress progress-striped" role="progressbar" id="berkas_progress" 
+                            aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" style="height:10px;"
+                        >
+                          <div class="progress-bar progress-bar-success" style="width:0%;" data-dz-uploadprogress></div>
+                        </div>
+                        <span class="help-block">Tipe Berkas jpg, jpeg, png</span>
+                    </div>
+                    
+                    <div id="berkas_content">
+                        <?php 
+							if(isset($detail[0]->berkas)){
+								foreach($detail[0]->berkas as $rb){
+						?>
+                        	<div class="col-md-3">
+                            	<a href="<?= base_url() ?>upload/berkas_perawatan/<?= $rb->filename ?>" target="_blank">
+                                	<img src="<?= base_url() ?>upload/berkas_perawatan/<?= $rb->filename ?>" width="200" />
+                                </a>
+                                <center><a href="#" class="delete-gambar-server" filename="<?= $rb->filename ?>" recid="<?= $rb->recid ?>"><i class="fa fa-trash-o"></i> hapus </a></center>
+                            </div>
+                       	<?php	
+								}
+							}
+						?>
+                    </div>
+                    
+                </div>
+            </div>
+            
+            <div class="form-group">
+            	<div class="col-md-12" id="status"></div>
+            </div>
+            
             <div class="form-action">
             	<div class="row">
                     
                     <div class="col-md-6">
-                        <a href="<?= base_url() ?>t_perawatan/daftar_perawatan/<?= $this->uri->segment(3) ?>?x=<?= $x ?>" class="btn btn-block default">Kembali</a>
+                        <a href="<?= base_url() ?>t_perawatan?x=<?= $x ?>" class="btn btn-block default">Kembali</a>
                     </div>
                     <div class="col-md-6">
                         <button type="submit" class="btn btn-block blue" id="save-btn">Simpan</button>
@@ -174,3 +232,176 @@
 <?php		
 	}
 ?>
+<script src="<?php echo base_url() ?>theme/assets/global/plugins/dropzone/dropzone.js"></script>
+<script type="text/javascript" src="<?= base_url() ?>theme/assets/global/plugins/jquery-inputmask/jquery.inputmask.bundle.min.js"></script>
+<script>
+	$(document).ready(function(e) {
+        $(".harga").inputmask('IDR 999,999,999', {
+			numericInput: true,
+			rightAlignNumerics: false,
+			greedy: false
+		});
+		
+		$(".jumlah").inputmask({
+            "mask": "9",
+            "repeat": 10,
+            "greedy": false
+        }); // ~ mask "9" or mask "99" or ... mask "9999999999"
+		
+		
+		
+		$("#kilometer").inputmask('999,999,999', {
+			numericInput: true,
+			rightAlignNumerics: false,
+			greedy: false
+		});
+    });
+	
+	var myDropzone = new Dropzone("#btn_berkas", { 
+		url: "<?= base_url() ?>Upload/do_upload_b",
+		maxFiles:5,
+		acceptedFiles:".jpg, .png, .jpeg",
+		dictDefaultMessage:"Upload Berkas (jpg, jpeg, png)"
+	});
+		
+	myDropzone.on("totaluploadprogress", function(progress) {
+		$("#berkas_progress .progress-bar").css({"width":progress+"%"});
+	});
+			
+	myDropzone.on("success", function(file, response) {
+		obj = JSON.parse(response);
+		var info = obj.info;
+		if( info == '0' ){
+			alert(obj.message);
+		}else{
+			var file_name = obj.file_name;
+			var file_type = obj.file_type;
+			var file_size = obj.file_size;
+			
+			var tmp = '';
+				tmp += '<div class="col-md-3">' 
+				tmp += '<img src="<?= base_url() ?>upload/berkas_perawatan/'+file_name+'" width="200">';
+				tmp += '<center><a href="#" class="delete-gambar"><i class="fa fa-trash-o"></i> hapus </a></center>';
+				tmp += '<input type="hidden" name="berkas_pendukung[]" id="berkas_pendukung[]" value="'+file_name+'" />';
+				tmp += '</div>';
+				
+			$("#berkas_content").append(tmp);
+			
+		}
+		this.removeFile(file);
+		
+		$(".delete-gambar").click(function(e) {
+			e.preventDefault();
+            var url = "<?= base_url() ?>Upload/delete_fileb_json";
+			
+			
+			if(confirm('Anda yakin menghapus data ini ?')){
+				$.ajax({
+					cache: false,
+					type: "get",
+					url: url,
+					data: "file_name=" + file_name,
+					success: function (response) {
+						var data = JSON.parse(response);
+						var status = data.status;
+						var message = data.message;
+	
+						if (status == '1') {
+							
+						} else {
+							alert(message);
+						}
+					}
+				});
+				$(this).parent().parent().remove();
+			}
+        });
+	});
+	
+	$(".delete-gambar-server").click(function(e) {
+		e.preventDefault();
+        
+		if(confirm('Anda yakin menghapus data ini ?')){
+			$(this).parent().parent().remove();
+			var id = $(this).attr("recid");
+			var filename = $(this).attr("filename");
+			var url = "<?= base_url() ?>T_perawatan/hapus_berkas_json";
+			$.ajax({
+				cache: false,
+				type: "get",
+				url: url,
+				data: "filename=" + filename + "&id=" + id,
+				success: function (response) {
+					var data = JSON.parse(response);
+					var status = data.status;
+					var message = data.message;
+	
+					if (status == '1') {
+						
+					} else {
+						alert(message);
+					}
+				}
+			});
+			$(this).parent().parent().remove();
+		}
+    });
+	
+	$(".checks").click(function(e) {
+        var checked = $(this).attr("checked");
+		var val = $(this).val();
+		
+		if( checked == "checked" ){
+			$(".checks-" + val).removeAttr("disabled");
+		}else{
+			
+			$(".checks-" + val).attr("disabled", "disabled").val('').text('');
+		}
+    });
+	
+	$("#form").submit(function (e) {
+        // prevent default action
+        e.preventDefault();
+        $("#save-btn").text('Menyimpan data ....').attr("disabled", "disabled");
+        var url = $(this).attr("action");
+        var data = $("#form").serialize();
+        $.ajax({
+            cache: false,
+            type: "post",
+            url: url,
+            data: data,
+            success: function (response) {
+                $("#save-btn").text("Simpan").removeAttr("disabled");
+                var data = JSON.parse(response);
+                var status = data.status;
+                var message = data.message;
+                if (status == '1') {
+                    var url = "<?= base_url() ?>T_perawatan/daftar_perawatan/<?= $this->uri->segment(3) ?>/?x=<?= $this->input->get('x') ?>";
+					location.href = url;
+                } else {
+                    $.each(data.message, function (key, value) {
+                        var element = $('#form #' + key);
+                        console.log(element)
+                        element.closest('div.form-group')
+                                .removeClass('has-error')
+                                .addClass(value.length > 0 ? 'has-error' : 'has-success')
+                                .find('.text-danger')
+                                .remove();
+
+                        element.after(value);
+                    });
+                    $("#save-btn").text('Simpan').removeAttr("disabled");
+					var tmp = '<div class="alert alert-danger"><strong>Informasi!</strong> Lengkapi Form. Perhatikan baris yang diberi tanda merah.</div>';
+                	$("#status").empty().append(tmp);
+				}
+            },
+            beforeSend: function () {
+                $("#save-btn").val('Menyimpan data ....').attr("disabled", "disabled");
+            },
+            error: function () {
+                $("#save-btn").text('Simpan').removeAttr("disabled");
+            }
+        });
+
+    });
+</script>

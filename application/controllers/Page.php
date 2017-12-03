@@ -19,6 +19,15 @@ class Page extends MY_Controller {
 
     public function index()
     {	
+        $this->load->model('Ms_kendaraan_m');
+        $this->load->model('T_perawatan_m');
+        
+        
+        $data['chart1'] = $this->Ms_kendaraan_m->get_summary_status_stnk();
+        $data['chart11'] = $this->T_perawatan_m->get_summary_status_perawatan();
+        
+        $data['chart2'] = $this->Ms_kendaraan_m->get_summary_jenis_kendaraan();
+        
         $data['page'] = $this->main_path . 'main.php';
         $data['title'] = "Dashboard"; // Capitalize the first letter
         $this->load->view('templates/index_horizontal_menu/index', $data);

@@ -14,9 +14,9 @@
 class Sys_user_m extends My_model {
 
     //put your code here
-    var $table = "sys_user";
-    var $view = "sys_user_view";
-    var $primary_key = "userid";
+    var $table = "auth_users";
+    var $view = "auth_users";
+    var $primary_key = "user_id";
 
     function get_data($where = NULL, $order_by = NULL) {
         if (!empty($where))
@@ -86,25 +86,6 @@ class Sys_user_m extends My_model {
         if( !empty($data['userpass']) )
             $d['passwd'] = $data['userpass'];
         
-        $this->db->update('auth_users', $d, array('user_id' => $id));
-        
-        $this->db->trans_complete();
-        if ($this->db->trans_status() === FALSE)
-        {
-            return false;
-        }else{
-            return true;
-        }
-    }
-    
-    public function update_user_password_auth_by_id($data = NULL, $id = NULL) {
-        $this->db->trans_start();
-        //print_r($data); exit;
-        $this->db->update($this->table, $data, array($this->primary_key => $id));
-        
-        $d['passwd'] = $data['userpass'];
-        $d['modified_at'] = date('Y-m-d H:i:s');
-        $d['passwd_modified_at'] = date('Y-m-d H:i:s');
         $this->db->update('auth_users', $d, array('user_id' => $id));
         
         $this->db->trans_complete();
@@ -186,12 +167,8 @@ class Sys_user_m extends My_model {
     
     public function update_user_auth_password_by_id($data = NULL, $id = NULL) {
         $this->db->trans_start();
-        
-        $this->db->update($this->table, $data, array($this->primary_key => $id));
-        
-        $d['passwd'] = $data['userpass'];
-        $d['passwd_recovery_date'] = date('Y-m-d H:i:s');
-        $this->db->update('auth_users', $d, array('user_id' => $id));
+
+        $this->db->update('auth_users', $data, array('user_id' => $id));
         
         $this->db->trans_complete();
         if ($this->db->trans_status() === FALSE)

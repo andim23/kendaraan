@@ -21,7 +21,7 @@ License: You must have a valid license purchased only from themeforest(the above
 <!-- BEGIN HEAD -->
 <head>
 <meta charset="utf-8"/>
-<title>Login Form | Sunprokum</title>
+<title>Login Form | Siapkol </title>
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <meta http-equiv="Content-type" content="text/html; charset=utf-8">
@@ -90,8 +90,8 @@ if( ! isset( $on_hold_message ) )
         <?php
         	if( ! isset( $optional_login ) )
 			{
-				echo '<center><h3 class="form-title">Login ke SIM-PK</h3>';
-				echo '<h4>Sistem Informasi Perawatan Kendaraan</h4></center>';
+				echo '<center><h3 class="form-title">Login ke Siapkol </h3>';
+				//echo '<h4>Sistem Informasi Perawatan Kendaraan</h4></center>';
 			}
 		?>
         <div>

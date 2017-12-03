@@ -44,7 +44,6 @@ class T_perawatan_m extends My_model {
         $this->db->trans_begin();
         
         if( !empty($datap['id_jenis_perawatan']) ){
-            
             $dh = array(
                 'userinput' => $data['userinput']
             );
@@ -64,11 +63,30 @@ class T_perawatan_m extends My_model {
                     'status' => 'Y',
                     'catatan' => $ar_catatan[$i],
                     'jumlah' => $ar_jumlah[$i],
-                    'harga' => $ar_harga[$i],
+                    'harga' => preg_replace("/[^0-9]/", "", $ar_harga[$i]),
                     'id_jenis_perawatan' => $ar_id_jenis_perawatan[$i],
                     'userinput' => $data['userinput']
                 );
                 $this->db->insert('t_jenis_perawatan_dtl', $dd);
+            }
+        }
+        
+        if( !empty($datap['berkas_pendukung']) ){
+            // insert foto sebelum
+            $this->db->insert('sys_attach', array('userinput' => $data['userinput']));
+            $id_berkas_pendukung = $this->db->insert_id();
+            $data['id_berkas_pendukung'] = $id_berkas_pendukung;
+            
+            $berkas_pendukung = $datap['berkas_pendukung'];
+            $cb = count($berkas_pendukung);
+            for($i=0; $i<$cb; $i++){
+                $dfs = array(
+                    'attachid' => $id_berkas_pendukung,
+                    'title' => 'Berkas Pendukung',
+                    'description' => 'Berkas Pendukung',
+                    'filename' => $berkas_pendukung[$i]
+                );
+                $this->db->insert('sys_attach_dtl', $dfs);
             }
         }
         
@@ -85,7 +103,73 @@ class T_perawatan_m extends My_model {
     }
 
     public function update_by_id($data = NULL, $id = NULL, $datap=null) {
-        return $this->db->update($this->table, $data, array($this->primary_key => $id));
+        $this->db->trans_begin();
+        
+        if( !empty($datap['id_jenis_perawatan']) ){
+            
+            if( empty($data['id_jenis_perawatan_hdr']) ){
+                $dh = array(
+                    'userinput' => $data['userupdate']
+                );
+                $this->db->insert('t_jenis_perawatan_hdr', $dh);
+                $data['id_jenis_perawatan_hdr'] = $this->db->insert_id();
+            }
+                    
+            $c = count($datap['id_jenis_perawatan']);
+            
+            $ar_id_jenis_perawatan = $datap['id_jenis_perawatan'];
+            $ar_catatan = $datap['catatan'];
+            $ar_jumlah = $datap['jumlah'];
+            $ar_harga = $datap['harga'];
+            
+            // delete dari detail
+            $this->db->delete('t_jenis_perawatan_dtl', array( 'id_jenis_perawatan_hdr' => $data['id_jenis_perawatan_hdr'] ));
+            
+            for($i=0; $i<$c; $i++){
+                $dd = array(
+                    'id_jenis_perawatan_hdr' => $data['id_jenis_perawatan_hdr'],
+                    'status' => 'Y',
+                    'catatan' => $ar_catatan[$i],
+                    'jumlah' => $ar_jumlah[$i],
+                    'harga' => preg_replace("/[^0-9]/", "", $ar_harga[$i]),
+                    'id_jenis_perawatan' => $ar_id_jenis_perawatan[$i],
+                    'userinput' => $data['userupdate']
+                );
+                $this->db->insert('t_jenis_perawatan_dtl', $dd);
+            }
+        }
+        
+        if( !empty($datap['berkas_pendukung']) ){
+            // insert foto sebelum
+            if( empty($data['id_berkas_pendukung']) ){
+                $this->db->insert('sys_attach', array('userinput' => $data['userupdate']));
+                $id_berkas_pendukung = $this->db->insert_id();
+                $data['id_berkas_pendukung'] = $id_berkas_pendukung;
+            }
+            
+            $berkas_pendukung = $datap['berkas_pendukung'];
+            $cb = count($berkas_pendukung);
+            for($i=0; $i<$cb; $i++){
+                $dfs = array(
+                    'attachid' => $data['id_berkas_pendukung'],
+                    'title' => 'Berkas Pendukung',
+                    'description' => 'Berkas Pendukung',
+                    'filename' => $berkas_pendukung[$i]
+                );
+                $this->db->insert('sys_attach_dtl', $dfs);
+            }
+        }
+        
+        $this->db->update($this->table, $data, array($this->primary_key => $id));
+        
+        if ($this->db->trans_status() === FALSE)
+        {
+            return $this->db->trans_rollback();
+        }
+        else
+        {
+            return $this->db->trans_commit();
+        }
     }
 
     public function delete_by_id($id) {
@@ -124,10 +208,11 @@ class T_perawatan_m extends My_model {
 
     function get_datatables($column_order, $order, $column_search, $where = null) {
         $this->_get_datatables_query($column_order, $order, $column_search);
-        if ($_POST['length'] != -1)
-            if (!empty($where))
-                $this->db->where($where);
-        $this->db->limit($_POST['length'], $_POST['start']);
+        if (!empty($where))
+            $this->db->where($where);
+
+        if ($_POST['length'] != -1)           
+            $this->db->limit($_POST['length'], $_POST['start']);
         $query = $this->db->get();
         return $query->result_array();
     }
@@ -148,4 +233,20 @@ class T_perawatan_m extends My_model {
     }
 
     // end fata tables
+    
+    // summary
+    public function get_summary_status_perawatan(){
+        $sql = 'select		"expired" as status_perawatan, count(*) as total
+                from			ms_kendaraan x
+                left join	t_perawatan_berlaku_max_view y on y.id_kendaraan = x.id_kendaraan
+                where			y.masa_berlaku_max < date(now())
+                union all
+                select		"valid" as status_perawatan, count(*) as total
+                from			ms_kendaraan x
+                left join	t_perawatan_berlaku_max_view y on y.id_kendaraan = x.id_kendaraan
+                where			y.masa_berlaku_max >= date(now())';
+        $query = $this->db->query($sql);
+        $result = $query->result();
+        return $result;
+    }
 }

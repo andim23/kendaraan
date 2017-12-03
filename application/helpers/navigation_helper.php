@@ -4,7 +4,7 @@
         $ci->load->database(); 
 
         $sql =  "
-				SELECT     y.* 
+		SELECT      y.* 
                 FROM        sys_privilege x
                 left join   sys_sitemap y on y.sitemapid = x.sitemapid
                 where       y.sitemapid_parent = 0 and x.roleid = '" . $roleid . "'
@@ -21,11 +21,11 @@
         $ci->load->database(); 
 
         $sql =  "
-					SELECT     	y.* 
-					FROM        sys_sitemap y
-					where       y.sitemapid_parent = '".$sitemapid_parent."'
-					order by    sortno
-				"
+                    SELECT     	y.* 
+                    FROM        sys_sitemap y
+                    where       y.sitemapid_parent = '".$sitemapid_parent."'
+                    order by    sortno
+		"
                 ; 
 
         $query = $ci->db->query($sql);
@@ -56,5 +56,35 @@
         }
         
         return $nav;
+   }
+   
+   function get_notif_stnk_expired(){
+   		$ci=& get_instance();
+        
+		$sql = "
+			select		COUNT(x.status_stnk) as total, 'STNK Expired' as caption
+			from		ms_kendaraan_view x
+			where		x.status_stnk = 'Expired'
+		";
+        
+		$query = $ci->db->query($sql);
+		$result = $query->result();
+		
+        return $result;
+   }
+   
+   function get_notif_keluhan(){
+   		$ci=& get_instance();
+        
+		$sql = "
+			select 		count(*) as total 
+			from 		t_keluhan_view x
+			where		x.status_keluhan = 'Open'
+		";
+        
+		$query = $ci->db->query($sql);
+		$result = $query->result();
+		
+        return $result;
    }
 ?>

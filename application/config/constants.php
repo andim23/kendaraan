@@ -88,11 +88,17 @@ defined('EXIT__AUTO_MAX')      OR define('EXIT__AUTO_MAX', 125); // highest auto
 /*
 |    Custom Global Variabel
 */
-define('PROFILE_PIC_DEFAULT','data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNjIiIGhlaWdodD0iMTgwIj48cmVjdCB3aWR0aD0iMTYyIiBoZWlnaHQ9IjE4MCIgZmlsbD0iI2VlZSIvPjx0ZXh0IHRleHQtYW5jaG9yPSJtaWRkbGUiIHg9IjgxIiB5PSI5MCIgc3R5bGU9ImZpbGw6I2FhYTtmb250LXdlaWdodDpib2xkO2ZvbnQtc2l6ZToxMnB4O2ZvbnQtZmFtaWx5OkFyaWFsLEhlbHZldGljYSxzYW5zLXNlcmlmO2RvbWluYW50LWJhc2VsaW5lOmNlbnRyYWwiPjE2MngxODA8L3RleHQ+PC9zdmc+');
 
 define('UPLOAD_PATH', 'upload/');
 
 define('MSG_ERROR_ADMIN', 'Terjadi kesalahan. Hubungi Administrator');
 
-define('LAT', -6.18634210490333);
-define('LNG', 106.84554398059845);
+define('M_NAMA', 'Christy Michiko');
+define('M_JABATAN', 'Kasubag Rumah Tangga');
+define('M_NIP', '19800519 200812 2 001');
+define('M_HP', '0811187832');
+define('M_TEMBUSAN', '<ol>
+							<li>Sekjen</li>
+							<li>PPK</li>
+						</ol>
+');

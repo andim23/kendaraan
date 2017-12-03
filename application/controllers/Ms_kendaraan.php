@@ -15,7 +15,7 @@ defined('BASEPATH') or exit('No direct script access allowed');
  */
 class Ms_kendaraan extends MY_Controller {
 
-    var $tmp_path = 'templates/index_horizontal_menu/index';
+    var $tmp_path = 'templates/layout_horizontal_sidebar_menu/index';
     var $main_path = 'pages/ms_kendaraan/';
 
     public function __construct() {
@@ -214,14 +214,12 @@ class Ms_kendaraan extends MY_Controller {
         )
             show_404();
 
-        if (!$this->verify_role('admin')) {
-            redirect("login");
-        }
+
 
         $this->load->model('Ms_kendaraan_m');
 
         $column_order = array(
-            'id_kendaraan', 'jenis', 'nama_kendaraan', 'platno', 'merk', 'no_stnk', 'id_kendaraan'
+            'id_kendaraan', 'jenis', 'nama_kendaraan', 'platno', 'merk', 'no_stnk', 'masa_berlaku_stnk_char', 'status_stnk', 'status_perawatan', 'id_kendaraan'
         );
         $column_search = $column_order;
         $order = array('dateinput' => 'desc'); // default order 

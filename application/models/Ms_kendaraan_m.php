@@ -139,10 +139,12 @@ class Ms_kendaraan_m extends My_model {
 
     function get_datatables($column_order, $order, $column_search, $where = null) {
         $this->_get_datatables_query($column_order, $order, $column_search);
-        if ($_POST['length'] != -1)
-            if (!empty($where))
-                $this->db->where($where);
-        $this->db->limit($_POST['length'], $_POST['start']);
+        if (!empty($where))
+            $this->db->where($where);
+
+        if ($_POST['length'] != -1)           
+            $this->db->limit($_POST['length'], $_POST['start']);
+        
         $query = $this->db->get();
         return $query->result_array();
     }
@@ -163,4 +165,30 @@ class Ms_kendaraan_m extends My_model {
     }
 
     // end fata tables
+    
+    // summary
+    public function get_summary_status_stnk(){
+        $sql = 'select      "expired" as status_stnk, count(*) as total
+                from        ms_kendaraan x
+                where       x.masa_berlaku_stnk < date(now())
+                union all
+                select      "valid" as status_stnk, count(*) as total
+                from        ms_kendaraan x
+                where       x.masa_berlaku_stnk >= date(now())';
+        $query = $this->db->query($sql);
+        $result = $query->result();
+        return $result;
+    }
+    
+    public function get_summary_jenis_kendaraan(){
+        $sql = 'select      y.id_jenis, y.jenis,
+                            count(x.id_kendaraan) as total
+                from        ms_jenis y
+                left join   ms_kendaraan x on x.id_jenis = y.id_jenis
+                group by    x.id_jenis,  y.jenis';
+        $query = $this->db->query($sql);
+        $result = $query->result();
+        return $result;
+    }
+    
 }

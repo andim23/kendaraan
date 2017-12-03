@@ -15,7 +15,7 @@ class Ms_jenis_perawatan_m extends My_model {
 
     //put your code here
     var $table = "ms_jenis_perawatan";
-    var $view = "ms_jenis_perawatan";
+    var $view = "ms_jenis_perawatan_view";
     var $primary_key = "id_jenis_perawatan";
 
     function get_data($where = NULL, $order_by = NULL) {
@@ -84,10 +84,12 @@ class Ms_jenis_perawatan_m extends My_model {
 
     function get_datatables($column_order, $order, $column_search, $where = null) {
         $this->_get_datatables_query($column_order, $order, $column_search);
+        if (!empty($where))
+            $this->db->where($where);
+        
         if ($_POST['length'] != -1)
-            if (!empty($where))
-                $this->db->where($where);
-        $this->db->limit($_POST['length'], $_POST['start']);
+            $this->db->limit($_POST['length'], $_POST['start']);
+        
         $query = $this->db->get();
         return $query->result_array();
     }

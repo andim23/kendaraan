@@ -96,9 +96,23 @@
                 }
             },
             "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
-                // <set you align column here>
+                var status_stnk = aData[7];
+				var status_perawatan = aData[8];
+
+				if( status_stnk == 'Valid' ){
+					$('td:eq(7)', nRow).addClass('bg-success');
+				}else{
+					$('td:eq(7)', nRow).addClass('bg-danger');
+				}
+				
+				if( status_perawatan == 'Valid' ){
+					$('td:eq(8)', nRow).addClass('bg-success');
+				}else{
+					$('td:eq(8)', nRow).addClass('bg-danger');
+				}
+				
                 $('td:eq(0)', nRow).attr("align", "right");
-                $('td:eq(6)', nRow).attr("align", "center");
+                $('td:eq(6),td:eq(7),td:eq(8),td:eq(9)', nRow).attr("align", "center");
             },
         }
     });
